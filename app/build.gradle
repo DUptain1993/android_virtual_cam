@@ -3,14 +3,15 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    namespace "com.example.vcam"
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.example.vcam"
         minSdk 21
-        targetSdk 26
-        versionCode 28
-        versionName "4.4"
+        targetSdk 36
+        versionCode 29
+        versionName "4.5"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -25,10 +26,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 dependencies {
-    compileOnly 'de.robv.android.xposed:api:82'
-    compileOnly 'de.robv.android.xposed:api:82:sources'
-
+    // The de.robv.android.xposed:api:82 Maven coordinate used to resolve via jcenter,
+    // which has been shut down. Use the jars already vendored under libs/ instead.
+    compileOnly files('libs/api-82.jar')
 }
