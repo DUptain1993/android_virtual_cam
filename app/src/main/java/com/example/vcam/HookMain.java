@@ -298,17 +298,14 @@ public class HookMain implements IXposedHookLoadPackage {
                     if (toast_content != null) {// The following logic enforces the private directory
                         int auth_statue = 0;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            try {
-                                auth_statue += (toast_content.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) + 1);
-                            } catch (Exception ee) {
-                                XposedBridge.log("[VCAM] [permission-check] " + ee.toString());
-                            }
-                            try {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                                    auth_statue += (toast_content.checkSelfPermission(Manifest.permission.MANAGE_EXTERNAL_STORAGE) + 1);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                auth_statue = Environment.isExternalStorageManager() ? 2 : 0;
+                            } else {
+                                try {
+                                    auth_statue += (toast_content.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) + 1);
+                                } catch (Exception ee) {
+                                    XposedBridge.log("[VCAM] [permission-check] " + ee.toString());
                                 }
-                            } catch (Exception ee) {
-                                XposedBridge.log("[VCAM] [permission-check] " + ee.toString());
                             }
                         }else {
                             if (toast_content.checkCallingPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED ){
@@ -328,7 +325,13 @@ public class HookMain implements IXposedHookLoadPackage {
                             File toast_force_file = new File(Environment.getExternalStorageDirectory().getPath()+ "/DCIM/Camera1/force_show.jpg");
                             if ((!lpparam.packageName.equals(BuildConfig.APPLICATION_ID)) && ((!shown_file.exists()) || toast_force_file.exists())) {
                                 try {
-                                    Toast.makeText(toast_content, lpparam.packageName+" has not been granted local storage read permission, please check permissions\nCamera1 has been redirected to " + toast_content.getExternalFilesDir(null).getAbsolutePath() + "/Camera1/", Toast.LENGTH_SHORT).show();
+                                    String toast_message;
+                                    if (force_private.exists()) {
+                                        toast_message = lpparam.packageName + " is configured to force private directory mode\nCamera1 has been redirected to " + toast_content.getExternalFilesDir(null).getAbsolutePath() + "/Camera1/";
+                                    } else {
+                                        toast_message = lpparam.packageName + " has not been granted local storage read permission, please check permissions\nCamera1 has been redirected to " + toast_content.getExternalFilesDir(null).getAbsolutePath() + "/Camera1/";
+                                    }
+                                    Toast.makeText(toast_content, toast_message, Toast.LENGTH_SHORT).show();
                                     FileOutputStream fos = new FileOutputStream(toast_content.getExternalFilesDir(null).getAbsolutePath() + "/Camera1/" + "has_shown");
                                     String info = "shown";
                                     fos.write(info.getBytes());

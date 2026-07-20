@@ -11,7 +11,7 @@
     <string name="gitee" translatable="false">Gitee mirror (faster in mainland China)</string>
     <string name="switch5">Disable toast message</string>
     <string name="permission_lack_warn">Missing permissions</string>
-    <string name="permission_description">The permission to access local storage is used to set up configuration files. If refused you need to set up file manually.</string>
+    <string name="permission_description">Storage access is used to set up configuration files. On Android 11+ this includes "All files access" (MANAGE_EXTERNAL_STORAGE). If refused you need to set up file manually.</string>
     <string name="positive">Sure</string>
     <string name="negative">Refuse</string>
 </resources>
