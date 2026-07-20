@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -197,7 +198,25 @@ public class MainActivity extends Activity {
     }
 
     private void request_permission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.permission_lack_warn);
+                builder.setMessage(R.string.permission_description);
+
+                builder.setNegativeButton(R.string.negative, (dialogInterface, i) -> Toast.makeText(MainActivity.this, R.string.permission_lack_warn, Toast.LENGTH_SHORT).show());
+
+                builder.setPositiveButton(R.string.positive, (dialogInterface, i) -> {
+                    try {
+                        Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, Uri.parse("package:" + getPackageName()));
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        startActivity(new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
+                    }
+                });
+                builder.show();
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
                     || this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -213,6 +232,9 @@ public class MainActivity extends Activity {
     }
 
     private boolean has_permission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return Environment.isExternalStorageManager();
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_DENIED
                     && this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_DENIED;
@@ -222,7 +244,7 @@ public class MainActivity extends Activity {
 
 
     private void sync_statue_with_files() {
-        Log.d(this.getApplication().getPackageName(), "【VCAM】[sync]同步开关状态");
+        Log.d(this.getApplication().getPackageName(), "[VCAM] [sync] Syncing switch states");
 
         if (!has_permission()){
             request_permission();
